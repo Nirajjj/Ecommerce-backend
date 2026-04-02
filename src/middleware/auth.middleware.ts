@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { User } from "../models/user.js";
+import { User } from "../models/user.model.js";
 import type { Request, Response, NextFunction } from "express";
 import { JWT_SECRET } from "../config/env.js";
 import type { JwtPayload } from "jsonwebtoken";
@@ -24,9 +24,14 @@ const authenticate = async (
       return res.status(401).json({ message: "Unauthorized" });
     }
     req.user = user;
+    console.log("authenticated user", req.user);
     next();
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: errorMessage });
   }
 };
 
@@ -45,6 +50,7 @@ const authorize = (roles: string[] | string) => {
         return res.status(403).json({ message: "Forbidden" });
       }
     }
+    console.log("authorized user", req.user);
     next();
   };
 };

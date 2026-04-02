@@ -1,9 +1,9 @@
-import { User } from "../models/user.js";
+import { User } from "../models/user.model.js";
 import bcrypt from "bcrypt";
 
 const register = async (req: any, res: any) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
     //check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -19,6 +19,7 @@ const register = async (req: any, res: any) => {
       name,
       email,
       password: hashedPassword,
+      role: role || "customer",
     });
     await newUser.save();
     console.log("new user created", newUser);

@@ -7,6 +7,7 @@ interface Product {
   category: string;
   stock: number;
   seller: Schema.Types.ObjectId;
+  images: { url: string; public_id: string }[];
 }
 
 const productSchema = new Schema<Product>(
@@ -37,6 +38,19 @@ const productSchema = new Schema<Product>(
     seller: {
       type: Schema.Types.ObjectId,
       ref: "User",
+    },
+    images: {
+      type: [
+        {
+          url: String,
+          public_id: String,
+        },
+      ],
+      validate: {
+        validator: (images: { url: string; public_id: string }[]) =>
+          images.length <= 5,
+        message: "A product can have at most 5 images.",
+      },
     },
   },
   {
