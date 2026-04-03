@@ -17,7 +17,7 @@ productRoutes.post(
   "/",
   authenticate,
   authorize(["admin", "seller"]),
-  upload.single("image"),
+  upload.array("images", 5), // allow up to 5 images
   createProduct,
 );
 productRoutes.get("/", getProducts);
@@ -28,7 +28,7 @@ productRoutes.put(
   "/:id",
   authenticate,
   authorize(["admin", "seller"]),
-  upload.single("image"),
+  upload.array("images", 5), // allow up to 5 images
   updateProduct,
 );
 

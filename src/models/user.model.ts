@@ -28,6 +28,7 @@ let userSchema = new Schema<User>(
     phoneNumber: {
       type: String,
       unique: true,
+      sparse: true,
       validate(value: string) {
         if (!validator.isMobilePhone(value, "any")) {
           throw new Error("Phone number is not valid");

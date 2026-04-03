@@ -1,10 +1,10 @@
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 
 interface Product {
   name: string;
   description: string;
   price: number;
-  category: string;
+  category: mongoose.Schema.Types.ObjectId;
   stock: number;
   seller: Schema.Types.ObjectId;
   images: { url: string; public_id: string }[];
@@ -26,8 +26,8 @@ const productSchema = new Schema<Product>(
       min: 0,
     },
     category: {
-      type: String,
-      enum: ["electronics", "fashion", "books", "home"],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
       required: true,
     },
     stock: {

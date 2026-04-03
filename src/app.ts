@@ -8,6 +8,7 @@ import connectToDb from "./config/db.js";
 import authRoutes from "./routes/authentication.routes.js";
 import productRoutes from "./routes/product.routes.js";
 import { globalErrorHandler } from "./middleware/error.middleware.js";
+import categoryRoutes from "./routes/category.routes.js";
 
 const app = express();
 let port = process.env.PORT || 3000;
@@ -27,6 +28,7 @@ app.use((req, res, next) => {
 // ROUTES
 app.use("/api/auth", authRoutes);
 app.use("/api/product", productRoutes);
+app.use("/api/category", categoryRoutes);
 
 app.use(globalErrorHandler);
 
