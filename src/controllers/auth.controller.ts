@@ -14,7 +14,7 @@ const register = catchAsync(
 
     //hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("hashed password", hashedPassword);
+
     //create a new user
     const newUser = new User({
       name,
@@ -23,7 +23,7 @@ const register = catchAsync(
       role: role || "customer",
     });
     await newUser.save();
-    console.log("new user created", newUser);
+
     // send token to the user
     const token = await newUser.createJwtToken();
     res.cookie("token", token, {
@@ -47,19 +47,12 @@ const login = catchAsync(
     const { email, password } = req.body;
     // check if the user exists in the database
     const user = await User.findOne({ email });
-    console.log("user found", user);
+
     if (!user) return next(new AppError(400, "Invalid email or password"));
 
     // validate the password
     const isPasswordValid = await user.validatePassword(password);
-    console.log(
-      "is password valid",
-      isPasswordValid,
-      "password by user",
-      password,
-      "hashed password",
-      user.password,
-    );
+
     if (!isPasswordValid)
       return next(new AppError(400, "Invalid email or password"));
 

@@ -4,7 +4,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config/env.js";
 
-interface User {
+export interface UserDocument {
+  // change the name of the interface to avoid confusion with the model change to IUser or
+  _id: Schema.Types.ObjectId;
   name: string;
   gender: "male" | "female" | "other";
   phoneNumber: string;
@@ -15,7 +17,7 @@ interface User {
   validatePassword: (passwordByUser: string) => Promise<boolean>;
   createJwtToken: () => Promise<string>;
 }
-let userSchema = new Schema<User>(
+let userSchema = new Schema<UserDocument>(
   {
     name: {
       type: String,
@@ -79,6 +81,6 @@ userSchema.methods.createJwtToken = function () {
   return token;
 };
 
-const User = model<User>("User", userSchema);
+const User = model<UserDocument>("User", userSchema);
 
 export { userSchema, User };

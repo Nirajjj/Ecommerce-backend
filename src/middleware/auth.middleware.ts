@@ -3,12 +3,9 @@ import { User } from "../models/user.model.js";
 import type { Request, Response, NextFunction } from "express";
 import { JWT_SECRET } from "../config/env.js";
 import type { JwtPayload } from "jsonwebtoken";
-export interface AuthRequest extends Request {
-  user?: User;
-}
 
 const authenticate = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
@@ -24,7 +21,7 @@ const authenticate = async (
       return res.status(401).json({ message: "Unauthorized" });
     }
     req.user = user;
-    console.log("authenticated user", req.user);
+
     next();
   } catch (error) {
     const errorMessage =
@@ -37,7 +34,7 @@ const authenticate = async (
 
 // authorize middleware to check if the user has the required role to access the route so that only authorized users can access the route
 const authorize = (roles: string[] | string) => {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -50,7 +47,7 @@ const authorize = (roles: string[] | string) => {
         return res.status(403).json({ message: "Forbidden" });
       }
     }
-    console.log("authorized user", req.user);
+
     next();
   };
 };

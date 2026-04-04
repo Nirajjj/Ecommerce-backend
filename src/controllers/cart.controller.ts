@@ -2,7 +2,6 @@ import { Cart, cartSchema } from "../models/cart.model.js";
 import type { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../utils/catchAsync.js";
 import { AppError } from "../utils/appError.js";
-import type { User } from "../models/user.model.js";
 import {
   addToCartSchema,
   updateCartSchema,
@@ -14,7 +13,7 @@ const addToCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     // 1. Edge Validation: Check request body before hitting the DB
     const validation = addToCartSchema.safeParse(req.body);
-    console.log("validation result", validation);
+
     if (!validation.success) {
       return next(
         new AppError(
@@ -33,7 +32,9 @@ const addToCart = catchAsync(
     if (product.stock < quantity) {
       return next(new AppError(400, "Insufficient stock available"));
     }
-    const userId = (req as any).user._id;
+    if (!req.user) return next(new AppError(401, "Unauthorized"));
+
+    const userId = req.user._id;
 
     // 2. Business Logic: Find or create the user's cart
     let cart = await Cart.findOne({ user: userId });
@@ -72,7 +73,8 @@ const addToCart = catchAsync(
 
 const getCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req as any).user._id;
+    if (!req.user) return next(new AppError(401, "Unauthorized"));
+    const userId = req.user._id;
     const cart = await Cart.findOne({ user: userId }).populate(
       "items.product",
       "name price",
@@ -90,7 +92,8 @@ const getCart = catchAsync(
 
 const updateCartQuantity = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req as any).user._id;
+    if (!req.user) return next(new AppError(401, "Unauthorized"));
+    const userId = req.user._id;
     const validation = updateCartSchema.safeParse({
       params: req.params,
       body: req.body,
@@ -141,7 +144,8 @@ const updateCartQuantity = catchAsync(
 
 const removeFromCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req as any).user._id;
+    if (!req.user) return next(new AppError(401, "Unauthorized"));
+    const userId = req.user._id;
     const productId = req.params.productId;
     if (typeof productId !== "string" || !productId?.trim()) {
       return next(new AppError(400, "Product ID is required"));
@@ -167,7 +171,8 @@ const removeFromCart = catchAsync(
 
 const clearCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req as any).user._id;
+    if (!req.user) return next(new AppError(401, "Unauthorized"));
+    const userId = req.user._id;
     const cart = await Cart.findOne({ user: userId });
     if (!cart) {
       return next(new AppError(404, "Cart not found"));

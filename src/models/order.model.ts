@@ -32,7 +32,7 @@ const orderSchema = new Schema<Order>(
           required: true,
           min: 1,
         },
-        price: {
+        priceAtPurchase: {
           type: Number,
           required: true,
           min: 0,

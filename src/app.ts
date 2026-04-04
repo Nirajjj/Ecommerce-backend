@@ -1,4 +1,3 @@
-console.log("backend running...");
 import { config } from "dotenv";
 config();
 import cookieParser from "cookie-parser";
@@ -40,5 +39,8 @@ connectToDb()
     app.listen(port, () => console.log(`server started to run on ${port} `));
   })
   .catch((error) => {
-    console.log(`connection failed ${error}`);
+    console.error(
+      `CRITICAL: Database connection failed. \nError: ${error.message}`,
+    );
+    process.exit(1);
   });

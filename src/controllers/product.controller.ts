@@ -5,7 +5,6 @@ import type { UploadApiResponse } from "cloudinary";
 import { v2 as cloudinary } from "cloudinary";
 import { catchAsync } from "../utils/catchAsync.js";
 import { AppError } from "../utils/appError.js";
-import { Category } from "../models/category.model.js";
 import mongoose from "mongoose";
 
 const getProducts = catchAsync(
@@ -75,7 +74,7 @@ const updateProduct = catchAsync(
     }
 
     const allImages = [, ...keptImages, ...newImages];
-    console.log(allImages);
+
     const { name, description, price, category, stock } = req.body;
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
