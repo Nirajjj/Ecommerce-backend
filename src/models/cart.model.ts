@@ -1,14 +1,15 @@
-import mongoose from "mongoose";
+import type { NextFunction } from "express";
+import mongoose, { type CallbackError } from "mongoose";
 import { model, Schema } from "mongoose";
 
 interface CartItem {
-  product: mongoose.Schema.Types.ObjectId;
+  product: mongoose.Types.ObjectId;
   quantity: number;
 }
 
 const cartItemSchema = new Schema<CartItem>({
   product: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "Product",
     required: true,
   },
@@ -40,6 +41,23 @@ const cartSchema = new Schema<Cart>({
   },
 });
 
+cartSchema.pre("save", async function () {
+  const cart = this;
+
+  // If items haven't changed, don't waste CPU cycles
+  if (!cart.isModified("items")) return;
+
+  // 1. Populate product prices if they aren't already there
+  // (Or fetch them manually from the Product model)
+  await cart.populate("items.product", "price");
+
+  // 2. Calculate total using reduce
+  cart.totalPrice = cart.items.reduce((acc, item: any) => {
+    // Check if product exists (defensive coding)
+    const price = item.product?.price || 0;
+    return acc + price * item.quantity;
+  }, 0);
+});
 const Cart = model<Cart>("Cart", cartSchema);
 
 export { cartSchema, Cart };
