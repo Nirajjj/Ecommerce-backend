@@ -1,28 +1,30 @@
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 interface OrderItem {
-  productId: Schema.Types.ObjectId;
+  product: mongoose.Types.ObjectId;
   quantity: number;
-  price: number;
+  priceAtPurchase: number;
 }
 interface Order {
-  userId: Schema.Types.ObjectId;
+  user: mongoose.Types.ObjectId;
   items: OrderItem[];
   totalPrice: number;
   shippingAddress: string;
   paymentStatus: "pending" | "paid" | "failed";
-  status: "pending" | "shipped" | "delivered" | "cancelled";
+  status: "pending" | "shipped" | "delivered" | "cancelled" | "processing";
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
 }
 
 const orderSchema = new Schema<Order>(
   {
-    userId: {
+    user: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
     items: [
       {
-        productId: {
+        product: {
           type: Schema.Types.ObjectId,
           ref: "Product",
           required: true,
@@ -56,8 +58,16 @@ const orderSchema = new Schema<Order>(
     status: {
       type: String,
       required: true,
-      enum: ["pending", "shipped", "delivered", "cancelled"],
+      enum: ["pending", "shipped", "delivered", "cancelled", "processing"],
       default: "pending",
+    },
+    razorpayOrderId: {
+      type: String,
+      required: true,
+    },
+    razorpayPaymentId: {
+      type: String,
+      required: true,
     },
   },
   {

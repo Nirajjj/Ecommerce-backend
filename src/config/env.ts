@@ -6,6 +6,7 @@ export const CLOUD_KEY = process.env.CLOUDINARY_API_KEY!;
 export const CLOUD_SECRET = process.env.CLOUDINARY_API_SECRET!;
 export const RAZORPAY_ID = process.env.RAZORPAY_KEY_ID!;
 export const RAZORPAY_SECRET = process.env.RAZORPAY_KEY_SECRET!;
+export const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET!;
 
 if (
   !JWT_SECRET ||
@@ -13,7 +14,8 @@ if (
   !CLOUD_KEY ||
   !CLOUD_SECRET ||
   !RAZORPAY_ID ||
-  !RAZORPAY_SECRET
+  !RAZORPAY_SECRET ||
+  !WEBHOOK_SECRET
 ) {
   const missingVars: string[] = [];
   if (!JWT_SECRET) missingVars.push("JWT_SECRET_KEY");
@@ -22,6 +24,7 @@ if (
   if (!CLOUD_SECRET) missingVars.push("CLOUDINARY_API_SECRET");
   if (!RAZORPAY_ID) missingVars.push("RAZORPAY_KEY_ID");
   if (!RAZORPAY_SECRET) missingVars.push("RAZORPAY_KEY_SECRET");
+  if (!WEBHOOK_SECRET) missingVars.push("RAZORPAY_KEY_SECRET");
   throw new Error(
     `The following required environment variables are missing: ${missingVars.join(", ")}`,
   );

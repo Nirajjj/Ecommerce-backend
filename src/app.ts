@@ -9,6 +9,7 @@ import productRoutes from "./routes/product.routes.js";
 import { globalErrorHandler } from "./middleware/error.middleware.js";
 import categoryRoutes from "./routes/category.routes.js";
 import cartRoutes from "./routes/cart.routes.js";
+import orderRoutes from "./routes/order.routes.js";
 
 const app = express();
 let port = process.env.PORT || 3000;
@@ -30,6 +31,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/order", orderRoutes);
 
 app.use(globalErrorHandler);
 

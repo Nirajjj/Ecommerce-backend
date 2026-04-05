@@ -1,6 +1,6 @@
 import mongoose, { Schema, model } from "mongoose";
 
-interface Product {
+export interface ProductDocument {
   name: string;
   description: string;
   price: number;
@@ -10,7 +10,7 @@ interface Product {
   images: { url: string; public_id: string }[];
 }
 
-const productSchema = new Schema<Product>(
+const productSchema = new Schema<ProductDocument>(
   {
     name: {
       type: String,
@@ -58,6 +58,6 @@ const productSchema = new Schema<Product>(
   },
 );
 
-const Product = model<Product>("Product", productSchema);
+const Product = model<ProductDocument>("Product", productSchema);
 
 export { productSchema, Product };
