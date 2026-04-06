@@ -7,6 +7,7 @@ import { catchAsync } from "../utils/catchAsync.js";
 import { AppError } from "../utils/appError.js";
 import mongoose from "mongoose";
 
+// --- CUSTOMER CONTROLLERS ---
 const getProducts = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const products = await Product.find().populate(
@@ -37,11 +38,35 @@ const getProductById = catchAsync(
   },
 );
 
+const searchProducts = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const query = req.query.q as string;
+    if (!query) return next(new AppError(400, "Query parameter is required"));
+    const products = await Product.find({
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } },
+      ],
+    });
+    res.status(200).json({
+      status: "success",
+      message: "Products fetched successfully",
+      data: { products },
+    });
+  },
+);
+
+// --- SELLER CONTROLLERS ---
 const updateProduct = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     let product = await Product.findById(req.params.id);
     if (!product) return next(new AppError(404, "Product not found"));
-    let keptImages = req.body.images as { url: string; public_id: string }[]; // array of public_ids of images to keep
+    let keptImages =
+      (req.body.images as { url: string; public_id: string }[]) || []; // array of public_ids of images to keep
+    if (!req.user) return next(new AppError(401, "Unauthorized"));
+    if (req.user._id.toString() !== product?.seller.toString()) {
+      return next(new AppError(401, "Unauthorized"));
+    }
     if (typeof keptImages === "string") {
       keptImages = JSON.parse(req.body.images);
     }
@@ -73,7 +98,7 @@ const updateProduct = catchAsync(
       });
     }
 
-    const allImages = [, ...keptImages, ...newImages];
+    const allImages = [...keptImages, ...newImages];
 
     const { name, description, price, category, stock } = req.body;
     const updatedProduct = await Product.findByIdAndUpdate(
@@ -91,7 +116,26 @@ const updateProduct = catchAsync(
     });
   },
 );
+const updateStock = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.body.stock) return next(new AppError(400, "Stock is required"));
+    if (!req.user) return next(new AppError(401, "Unauthorized"));
 
+    const { stock } = req.body;
+    const product = await Product.findById(req.params.id);
+    if (!product) return next(new AppError(404, "Product not found"));
+    if (req.user._id.toString() !== product?.seller.toString()) {
+      return next(new AppError(401, "Unauthorized"));
+    }
+    product.stock = stock;
+    await product.save();
+    res.status(200).json({
+      status: "success",
+      message: "Product stock updated successfully",
+      data: { product },
+    });
+  },
+);
 const createProduct = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     if (!req.files) return next(new AppError(400, "Image is required"));
@@ -105,7 +149,7 @@ const createProduct = catchAsync(
       url: image.secure_url,
       public_id: image.public_id,
     }));
-    const { name, description, price, category, stock } = req.body;
+    const { name, description, price, category, stock, seller } = req.body;
 
     const newProduct = new Product({
       name,
@@ -114,6 +158,7 @@ const createProduct = catchAsync(
       category,
       stock,
       images,
+      seller,
     });
     await newProduct.save();
 
@@ -127,7 +172,18 @@ const createProduct = catchAsync(
 
 const deleteProduct = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.params.id)
+      return next(new AppError(400, "Product ID is required"));
+    if (!mongoose.isValidObjectId(req.params.id))
+      return next(new AppError(400, "Invalid product ID"));
+    if (!req.user) return next(new AppError(401, "Unauthorized"));
+
+    const ProductObject = await Product.findById(req.params.id);
+    if (req.user._id.toString() !== ProductObject?.seller.toString()) {
+      return next(new AppError(401, "Unauthorized"));
+    }
     const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+
     if (!deletedProduct) return next(new AppError(404, "Product not found"));
 
     // delete all images from cloudinary
@@ -159,16 +215,11 @@ const getProductsByCategory = catchAsync(
   },
 );
 
-const searchProducts = catchAsync(
+const getSellerProducts = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const query = req.query.q as string;
-    if (!query) return next(new AppError(400, "Query parameter is required"));
-    const products = await Product.find({
-      $or: [
-        { name: { $regex: query, $options: "i" } },
-        { description: { $regex: query, $options: "i" } },
-      ],
-    });
+    const userId = req.user?._id;
+    if (!userId) return next(new AppError(401, "Unauthorized"));
+    const products = await Product.find({ seller: userId });
     res.status(200).json({
       status: "success",
       message: "Products fetched successfully",
@@ -185,4 +236,6 @@ export {
   getProductById,
   updateProduct,
   searchProducts,
+  getSellerProducts,
+  updateStock,
 };

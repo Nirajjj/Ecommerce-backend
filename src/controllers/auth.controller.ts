@@ -70,6 +70,16 @@ const login = catchAsync(
   },
 );
 
+const getMe = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) return next(new AppError(401, "Unauthorized"));
+    res.status(200).json({
+      status: "success",
+      message: "User fetched successfully",
+      data: { user: req.user },
+    });
+  },
+);
 const logout = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     res.clearCookie("token", {
@@ -84,4 +94,4 @@ const logout = catchAsync(
   },
 );
 
-export { register, login, logout };
+export { register, login, logout, getMe };

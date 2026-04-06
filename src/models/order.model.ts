@@ -3,6 +3,14 @@ interface OrderItem {
   product: mongoose.Types.ObjectId;
   quantity: number;
   priceAtPurchase: number;
+  seller: mongoose.Schema.Types.ObjectId;
+  productStatus:
+    | "pending"
+    | "processing"
+    | "shipped"
+    | "delivered"
+    | "cancelled"
+    | "returned";
 }
 interface Order {
   user: mongoose.Types.ObjectId;
@@ -38,6 +46,20 @@ const orderSchema = new Schema<Order>(
           type: Number,
           required: true,
           min: 0,
+        },
+        seller: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        productStatus: {
+          type: String,
+          required: true,
+          enum: [
+            "pending",
+            "processing",
+            "shipped",
+            "delivered",
+            "cancelled",
+            "returned",
+          ],
+          default: "pending",
         },
       },
     ],

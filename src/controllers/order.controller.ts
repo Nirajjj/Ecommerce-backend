@@ -9,6 +9,7 @@ import { RAZORPAY_SECRET, WEBHOOK_SECRET } from "../config/env.js";
 import { Product, type ProductDocument } from "../models/product.model.js";
 import type { ObjectId } from "mongoose";
 import mongoose from "mongoose";
+import { stat } from "fs";
 
 const createOrder = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -36,6 +37,8 @@ const createOrder = catchAsync(
           product: product._id,
           quantity,
           priceAtPurchase: product.price,
+          seller: product.seller,
+          productStatus: "pending",
         },
       ];
     } else {
@@ -62,6 +65,8 @@ const createOrder = catchAsync(
           product: item.product._id,
           quantity: item.quantity,
           priceAtPurchase: product.price,
+          seller: product.seller,
+          productStatus: "pending",
         };
       });
       totalPrice = cart.totalPrice;
@@ -144,13 +149,14 @@ const verifyPayment = catchAsync(
     await order.save();
 
     const stockPromises = order.items.map(async (item) => {
-      return Product.findByIdAndUpdate(item.product, {
+      Product.findByIdAndUpdate(item.product, {
         $inc: { stock: -item.quantity }, // $inc is a mongodb operator that increments the value of a field by a specified amount but does not allow negative values and that - is used to decrement the value of a field by a specified amount
       });
+      item.productStatus = "processing";
     });
 
     await Promise.all(stockPromises);
-
+    await order.save();
     await Cart.findOneAndDelete({ user: order.user } as any);
 
     res.status(200).json({
@@ -225,13 +231,80 @@ const razorpayWebHook = catchAsync(
         return Product.findByIdAndUpdate(item.product, {
           $inc: { stock: -item.quantity },
         });
+        item.productStatus = "processing";
       });
 
       await Promise.all(stockPromises);
-
+      await order.save();
       await Cart.findOneAndDelete({ user: order.user } as any);
       res.status(200).send("webhook received");
     }
   },
 );
-export { createOrder, verifyPayment, razorpayWebHook };
+
+// --- SELLER CONTROLLERS ---
+
+const getOrdersBySeller = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { sellerId } = req.params as { sellerId: string };
+    if (!mongoose.Types.ObjectId.isValid(sellerId)) {
+      return next(new AppError(400, "Invalid seller ID"));
+    }
+    const orders = await Order.find({ seller: sellerId });
+    res.status(200).json({
+      status: "success",
+      message: "Orders fetched successfully",
+      data: { orders },
+    });
+  },
+);
+
+const updateOrderStatus = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { orderId, productId, status } = req.body;
+    if (!req.user) return next(new AppError(401, "Unauthorized"));
+    const userId = req.user._id;
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return next(new AppError(400, "Invalid order ID"));
+    }
+    const validStatuses = ["Processing", "Shipped", "Delivered", "Cancelled"];
+    if (!validStatuses.includes(status)) {
+      return next(new AppError(400, "Invalid status update"));
+    }
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return next(new AppError(404, "Order not found"));
+    }
+    const sellerProduct = order.items.find(
+      (item) => item.product.toString() === productId.toString(),
+    );
+    if (!sellerProduct) {
+      return next(new AppError(404, "Product not found"));
+    }
+    if (sellerProduct.seller.toString() !== userId.toString()) {
+      return next(
+        new AppError(403, "You do not have permission to update this item"),
+      );
+    } else if (order.status === status) {
+      return next(new AppError(400, `Order is already ${status}`));
+    }
+
+    order.status = status;
+    await order.save();
+    res.status(200).json({
+      status: "success",
+      message: "Order status updated successfully",
+      data: { order },
+    });
+  },
+);
+
+export {
+  createOrder,
+  verifyPayment,
+  getOrders,
+  getOrder,
+  razorpayWebHook,
+  getOrdersBySeller,
+  updateOrderStatus,
+};

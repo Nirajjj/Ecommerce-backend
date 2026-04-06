@@ -6,6 +6,11 @@ interface CartItem {
   product: mongoose.Types.ObjectId;
   quantity: number;
 }
+interface Cart {
+  user: mongoose.Schema.Types.ObjectId;
+  items: CartItem[];
+  totalPrice: number;
+}
 
 const cartItemSchema = new Schema<CartItem>({
   product: {
@@ -19,12 +24,6 @@ const cartItemSchema = new Schema<CartItem>({
     min: 1,
   },
 });
-
-interface Cart {
-  user: mongoose.Schema.Types.ObjectId;
-  items: CartItem[];
-  totalPrice: number;
-}
 
 const cartSchema = new Schema<Cart>({
   user: {
