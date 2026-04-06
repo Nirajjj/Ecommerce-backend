@@ -3,6 +3,10 @@ interface Category {
   name: string;
   description: string;
   products: Schema.Types.ObjectId[];
+  image: {
+    url: String;
+    public_id: String;
+  };
 }
 
 const categorySchema = new Schema<Category>(
@@ -15,6 +19,10 @@ const categorySchema = new Schema<Category>(
       lowercase: true,
     },
     description: { type: String, required: true },
+    image: {
+      url: String,
+      public_id: String,
+    },
   },
   { timestamps: true },
 );

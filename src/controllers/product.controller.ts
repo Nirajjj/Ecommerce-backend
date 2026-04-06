@@ -138,8 +138,11 @@ const updateStock = catchAsync(
 );
 const createProduct = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    if (!req.files) return next(new AppError(400, "Image is required"));
+    if (!req.user) return next(new AppError(401, "Unauthorized"));
+    if (!req.files || (req.files as Express.Multer.File[]).length === 0)
+      return next(new AppError(400, "At least one image is required"));
     const files = req.files as Express.Multer.File[]; // array of images uploaded
+
     const uploadPromises = files.map((file) => uploadToCloudinary(file));
     const uploadImages = (await Promise.all(
       uploadPromises,
@@ -149,24 +152,31 @@ const createProduct = catchAsync(
       url: image.secure_url,
       public_id: image.public_id,
     }));
-    const { name, description, price, category, stock, seller } = req.body;
+    const { name, description, price, category, stock } = req.body;
+    try {
+      const newProduct = new Product({
+        name,
+        description,
+        price,
+        category,
+        stock,
+        images,
+        seller: req.user._id,
+      });
+      await newProduct.save();
 
-    const newProduct = new Product({
-      name,
-      description,
-      price,
-      category,
-      stock,
-      images,
-      seller,
-    });
-    await newProduct.save();
-
-    res.status(201).json({
-      status: "success",
-      message: "Product created successfully",
-      data: { product: newProduct },
-    });
+      res.status(201).json({
+        status: "success",
+        message: "Product created successfully",
+        data: { product: newProduct },
+      });
+    } catch (error) {
+      const deletePromises = images.map((img) =>
+        cloudinary.uploader.destroy(img.public_id),
+      );
+      await Promise.allSettled(deletePromises);
+      return next(new AppError(500, "Failed to create product"));
+    }
   },
 );
 

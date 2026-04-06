@@ -1,5 +1,5 @@
 import Express from "express";
-import { authenticate } from "../middleware/auth.middleware.js";
+import { authenticate, authorize } from "../middleware/auth.middleware.js";
 import {
   addToCart,
   getCart,
@@ -10,10 +10,30 @@ import {
 
 const cartRoutes = Express.Router();
 
-cartRoutes.post("/", authenticate, addToCart);
-cartRoutes.get("/", authenticate, getCart);
-cartRoutes.patch("/:productId", authenticate, updateCartQuantity);
-cartRoutes.delete("/:productId", authenticate, removeFromCart);
-cartRoutes.delete("/", authenticate, clearCart);
+cartRoutes.post(
+  "/",
+  authenticate,
+  authorize(["customer", "seller"]),
+  addToCart,
+);
+cartRoutes.get("/", authenticate, authorize(["customer", "seller"]), getCart);
+cartRoutes.patch(
+  "/:productId",
+  authenticate,
+  authorize(["customer", "seller"]),
+  updateCartQuantity,
+);
+cartRoutes.delete(
+  "/:productId",
+  authenticate,
+  authorize(["customer", "seller"]),
+  removeFromCart,
+);
+cartRoutes.delete(
+  "/",
+  authenticate,
+  authorize(["customer", "seller"]),
+  clearCart,
+);
 
 export default cartRoutes;

@@ -1,5 +1,5 @@
 import express from "express";
-import { authenticate } from "../middleware/auth.middleware.js";
+import { authenticate, authorize } from "../middleware/auth.middleware.js";
 import {
   createOrder,
   getOrder,
@@ -17,7 +17,17 @@ orderRoutes.get("/", authenticate, getOrders);
 orderRoutes.get("/:id", authenticate, getOrder);
 
 // --- SELLER ROUTES ---
-orderRoutes.get("/seller/:sellerId", authenticate, getOrdersBySeller);
-orderRoutes.patch("/:orderId/status", authenticate, updateOrderStatus);
+orderRoutes.get(
+  "/seller/:sellerId",
+  authenticate,
+  authorize(["seller"]),
+  getOrdersBySeller,
+);
+orderRoutes.patch(
+  "/:orderId/status",
+  authenticate,
+  authorize(["seller"]),
+  updateOrderStatus,
+);
 
 export default orderRoutes;
