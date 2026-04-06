@@ -8,7 +8,7 @@ import {
   updateCategory,
 } from "../controllers/category.controller.js";
 import upload from "../middleware/multer.middleware.js";
-import { deleteAnyProduct } from "../controllers/admin.controller.js";
+import { deleteAnyProduct } from "../controllers/product.controller.js";
 
 export const categoryRoutes = Express.Router();
 

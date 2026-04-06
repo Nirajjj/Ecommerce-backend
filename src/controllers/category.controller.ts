@@ -59,19 +59,35 @@ const createCategory = catchAsync(
 const updateCategory = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params as { id: string };
-    if (req.file)
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        return next(new AppError(400, "Invalid category ID"));
-      }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return next(new AppError(400, "Invalid category ID"));
+    }
     const { name, description } = req.body;
-    const category = await Category.findByIdAndUpdate(
-      id,
-      { name, description },
-      { new: true },
-    );
+    const category = await Category.findById(id);
+
     if (!category) {
       return next(new AppError(404, "Category not found"));
     }
+    if (name) {
+      category.name = name;
+    }
+    if (description) {
+      category.description = description;
+    }
+    const oldImagePublicId = category.image.public_id;
+    if (req.file) {
+      const file = req.file as Express.Multer.File; // array of images uploaded
+      const uploadImage = (await uploadToCloudinary(file)) as UploadApiResponse;
+      let image = {
+        url: uploadImage.secure_url,
+        public_id: uploadImage.public_id,
+      };
+      category.image = image;
+      await category.save();
+    }
+    await cloudinary.uploader.destroy(oldImagePublicId);
+
     res.status(200).json({
       status: "success",
       message: "Category updated successfully",

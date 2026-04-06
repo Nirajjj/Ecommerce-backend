@@ -4,8 +4,8 @@ interface Category {
   description: string;
   products: Schema.Types.ObjectId[];
   image: {
-    url: String;
-    public_id: String;
+    url: string;
+    public_id: string;
   };
 }
 
