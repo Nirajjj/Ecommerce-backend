@@ -12,8 +12,8 @@ export interface UserDocument {
   phoneNumber: string;
   email: string;
   password: string;
-  role: string;
-  isActive: string;
+  roles: string[];
+  accountStatus: string;
   validatePassword: (passwordByUser: string) => Promise<boolean>;
   createJwtToken: () => Promise<string>;
 }
@@ -53,13 +53,27 @@ let userSchema = new Schema<UserDocument>(
       required: true,
       minlength: 8,
     },
-    role: {
-      type: String,
+    roles: {
+      type: [String],
       required: true,
       enum: ["customer", "admin", "seller"],
-      default: "customer",
+      default: ["customer"],
+      validate: [
+        {
+          // Validator 1: Enforce Admin Isolation
+          validator: function (rolesArray: string[]) {
+            if (rolesArray.includes("admin")) {
+              // If 'admin' is in the array, it MUST be the only role
+              return rolesArray.length === 1;
+            }
+            return true; // Customers and Sellers can be mixed
+          },
+          message:
+            "An Admin cannot hold customer or seller roles simultaneously.",
+        },
+      ],
     },
-    isActive: {
+    accountStatus: {
       type: String,
       required: true,
       enum: ["active", "blocked", "suspended"],

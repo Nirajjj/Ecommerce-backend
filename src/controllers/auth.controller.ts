@@ -3,6 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { catchAsync } from "../utils/catchAsync.js";
 import { AppError } from "../utils/appError.js";
+import { NODE_ENV } from "../config/env.js";
 
 const register = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -15,12 +16,17 @@ const register = catchAsync(
     //hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    let assignedRoles: string[] = ["customer"];
+    if (role === "seller") {
+      assignedRoles = ["customer", "seller"];
+    }
+
     //create a new user
     const newUser = new User({
       name,
       email,
       password: hashedPassword,
-      role: role || "customer",
+      roles: role || "customer",
     });
     await newUser.save();
 
@@ -28,7 +34,7 @@ const register = catchAsync(
     const token = await newUser.createJwtToken();
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
@@ -60,7 +66,7 @@ const login = catchAsync(
     const token = await user.createJwtToken();
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: NODE_ENV === "production",
     });
     res.status(200).json({
       status: "success",
@@ -84,7 +90,7 @@ const logout = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: NODE_ENV === "production",
     });
     res.status(200).json({
       status: "success",
