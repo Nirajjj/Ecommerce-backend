@@ -1,4 +1,5 @@
 import mongoose, { Schema, model } from "mongoose";
+
 interface OrderItem {
   product: mongoose.Types.ObjectId;
   quantity: number;

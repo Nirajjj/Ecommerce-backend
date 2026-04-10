@@ -66,6 +66,7 @@ let userSchema = new Schema<UserDocument>(
               // If 'admin' is in the array, it MUST be the only role
               return rolesArray.length === 1;
             }
+
             return true; // Customers and Sellers can be mixed
           },
           message:
@@ -92,6 +93,7 @@ userSchema.methods.createJwtToken = function () {
   const token = jwt.sign({ id: this._id, role: this.role }, JWT_SECRET, {
     expiresIn: "1d",
   });
+
   return token;
 };
 

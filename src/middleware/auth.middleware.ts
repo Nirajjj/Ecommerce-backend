@@ -13,6 +13,7 @@ const authenticate = async (
   if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
   }
+
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
 
@@ -20,6 +21,7 @@ const authenticate = async (
     if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+
     req.user = user;
 
     next();
@@ -38,15 +40,12 @@ const authorize = (roles: string[] | string) => {
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    if (typeof roles === "string") {
-      if (req.user.role !== roles) {
+
+    req.user.roles.forEach((role) => {
+      if (!roles.includes(role)) {
         return res.status(403).json({ message: "Forbidden" });
       }
-    } else {
-      if (!roles.includes(req.user.role)) {
-        return res.status(403).json({ message: "Forbidden" });
-      }
-    }
+    });
 
     next();
   };

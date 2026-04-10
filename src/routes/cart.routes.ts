@@ -14,26 +14,26 @@ cartRoutes.post(
   "/",
   authenticate,
   authorize(["customer", "seller"]),
-  addToCart,
+  addToCart
 );
 cartRoutes.get("/", authenticate, authorize(["customer", "seller"]), getCart);
 cartRoutes.patch(
   "/:productId",
   authenticate,
   authorize(["customer", "seller"]),
-  updateCartQuantity,
+  updateCartQuantity
 );
 cartRoutes.delete(
   "/:productId",
   authenticate,
   authorize(["customer", "seller"]),
-  removeFromCart,
+  removeFromCart
 );
 cartRoutes.delete(
   "/",
   authenticate,
   authorize(["customer", "seller"]),
-  clearCart,
+  clearCart
 );
 
 export default cartRoutes;

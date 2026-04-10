@@ -18,20 +18,23 @@ const addToCart = catchAsync(
       return next(
         new AppError(
           400,
-          validation.error?.issues?.[0]?.message || "Invalid input",
-        ),
+          validation.error?.issues?.[0]?.message || "Invalid input"
+        )
       );
     }
 
     // validation.data is now fully typed and sanitized
     const { productId, quantity } = validation.data;
     const product = await Product.findById(productId);
+
     if (!product) {
       return next(new AppError(404, "Product not found"));
     }
+
     if (product.stock < quantity) {
       return next(new AppError(400, "Insufficient stock available"));
     }
+
     if (!req.user) return next(new AppError(401, "Unauthorized"));
 
     const userId = req.user._id;
@@ -48,7 +51,7 @@ const addToCart = catchAsync(
     } else {
       // Check if product already exists in the cart
       const itemIndex = cart.items.findIndex(
-        (item) => item.product.toString() === productId.toString(),
+        (item) => item.product.toString() === productId.toString()
       );
 
       if (itemIndex > -1) {
@@ -68,31 +71,35 @@ const addToCart = catchAsync(
       message: "Product added to cart successfully",
       data: { cart },
     });
-  },
+  }
 );
 
 const getCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) return next(new AppError(401, "Unauthorized"));
+
     const userId = req.user._id;
     const cart = await Cart.findOne({ user: userId }).populate(
       "items.product",
-      "name price",
+      "name price"
     );
+
     if (!cart) {
       return next(new AppError(404, "Cart not found"));
     }
+
     res.status(200).json({
       status: "success",
       message: "Cart fetched successfully",
       data: { cart },
     });
-  },
+  }
 );
 
 const updateCartQuantity = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) return next(new AppError(401, "Unauthorized"));
+
     const userId = req.user._id;
     const validation = updateCartSchema.safeParse({
       params: req.params,
@@ -103,8 +110,8 @@ const updateCartQuantity = catchAsync(
       return next(
         new AppError(
           400,
-          validation.error.issues?.[0]?.message || "Invalid input",
-        ),
+          validation.error.issues?.[0]?.message || "Invalid input"
+        )
       );
     }
 
@@ -118,6 +125,7 @@ const updateCartQuantity = catchAsync(
 
     // const product = await Product.findById(productId);
     if (!product) return next(new AppError(404, "Product not found"));
+
     if (!cart) return next(new AppError(404, "Cart not found"));
 
     if (product.stock < quantity) {
@@ -127,8 +135,9 @@ const updateCartQuantity = catchAsync(
     // const cart = await Cart.findOne({ user: userId });
 
     const itemIndex = cart.items.findIndex(
-      (item) => item.product.toString() === productId.toString(),
+      (item) => item.product.toString() === productId.toString()
     );
+
     if (itemIndex === -1)
       return next(new AppError(404, "Product not found in cart"));
 
@@ -139,26 +148,32 @@ const updateCartQuantity = catchAsync(
       message: "Cart updated successfully",
       data: { cart },
     });
-  },
+  }
 );
 
 const removeFromCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) return next(new AppError(401, "Unauthorized"));
+
     const userId = req.user._id;
     const productId = req.params.productId;
+
     if (typeof productId !== "string" || !productId?.trim()) {
       return next(new AppError(400, "Product ID is required"));
     }
+
     if (!mongoose.isValidObjectId(productId)) {
       return next(new AppError(400, "Invalid product ID"));
     }
+
     const cart = await Cart.findOne({ user: userId });
+
     if (!cart) {
       return next(new AppError(404, "Cart not found"));
     }
+
     cart.items = cart.items.filter(
-      (item) => item.product.toString() !== productId.toString(),
+      (item) => item.product.toString() !== productId.toString()
     );
     await cart.save();
     res.status(200).json({
@@ -166,17 +181,20 @@ const removeFromCart = catchAsync(
       message: "Product removed from cart successfully",
       data: { cart },
     });
-  },
+  }
 );
 
 const clearCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) return next(new AppError(401, "Unauthorized"));
+
     const userId = req.user._id;
     const cart = await Cart.findOne({ user: userId });
+
     if (!cart) {
       return next(new AppError(404, "Cart not found"));
     }
+
     cart.items = [];
     await cart.save();
     res.status(200).json({
@@ -184,7 +202,7 @@ const clearCart = catchAsync(
       message: "Cart cleared successfully",
       data: { cart },
     });
-  },
+  }
 );
 
 export { addToCart, getCart, updateCartQuantity, removeFromCart, clearCart };

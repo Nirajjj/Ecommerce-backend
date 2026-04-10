@@ -1,4 +1,5 @@
 import { config } from "dotenv";
+
 config();
 export const JWT_SECRET = process.env.JWT_SECRET_KEY!;
 export const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME!;
@@ -27,16 +28,27 @@ if (
 ) {
   const missingVars: string[] = [];
   if (!JWT_SECRET) missingVars.push("JWT_SECRET_KEY");
+
   if (!CLOUD_NAME) missingVars.push("CLOUDINARY_CLOUD_NAME");
+
   if (!CLOUD_KEY) missingVars.push("CLOUDINARY_API_KEY");
+
   if (!CLOUD_SECRET) missingVars.push("CLOUDINARY_API_SECRET");
+
   if (!RAZORPAY_ID) missingVars.push("RAZORPAY_KEY_ID");
+
   if (!RAZORPAY_SECRET) missingVars.push("RAZORPAY_KEY_SECRET");
+
   if (!WEBHOOK_SECRET) missingVars.push("RAZORPAY_KEY_SECRET");
+
   if (!HOST_URL) missingVars.push("HOST_URL");
+
   if (!PORT) missingVars.push("PORT");
+
   if (!MONGODB_URI) missingVars.push("MONGODB_URI");
+
   if (!NODE_ENV) missingVars.push("NODE_ENV");
+
   throw new Error(
     `The following required environment variables are missing: ${missingVars.join(", ")}`,
   );

@@ -19,37 +19,37 @@ categoryRoutes.delete(
   "/:id",
   authenticate,
   authorize(["admin"]),
-  deleteAnyProduct,
+  deleteAnyProduct
 );
 categoryRoutes.get(
   "/categories",
   authenticate,
   authorize(["admin"]),
-  getCategories,
+  getCategories
 );
 categoryRoutes.post(
   "/",
   authenticate,
   authorize(["admin"]),
   upload.single("image"),
-  createCategory,
+  createCategory
 );
 categoryRoutes.put(
   "category/:id",
   authenticate,
   authorize(["admin"]),
-  updateCategory,
+  updateCategory
 );
 categoryRoutes.delete(
   "category/:id",
   authenticate,
   authorize(["admin"]),
-  deleteCategory,
+  deleteCategory
 );
 categoryRoutes.get(
   "category/:id",
   authenticate,
   authorize(["admin"]),
-  getCategoryById,
+  getCategoryById
 );
 export default categoryRoutes;

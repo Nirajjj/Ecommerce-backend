@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 import { CLOUD_KEY, CLOUD_NAME, CLOUD_SECRET } from "./env.js";
+
 dotenv.config();
 
 cloudinary.config({

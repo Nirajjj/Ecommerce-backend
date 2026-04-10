@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+
 interface Category {
   name: string;
   description: string;
@@ -24,7 +25,7 @@ const categorySchema = new Schema<Category>(
       public_id: String,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 const Category = model<Category>("Category", categorySchema);

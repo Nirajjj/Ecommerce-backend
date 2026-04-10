@@ -54,6 +54,7 @@ cartSchema.pre("save", async function () {
   cart.totalPrice = cart.items.reduce((acc, item: any) => {
     // Check if product exists (defensive coding)
     const price = item.product?.price || 0;
+
     return acc + price * item.quantity;
   }, 0);
 });

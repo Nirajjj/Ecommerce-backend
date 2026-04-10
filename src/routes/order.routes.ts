@@ -21,13 +21,13 @@ orderRoutes.get(
   "/seller/:sellerId",
   authenticate,
   authorize(["seller"]),
-  getOrdersBySeller,
+  getOrdersBySeller
 );
 orderRoutes.patch(
   "/:orderId/status",
   authenticate,
   authorize(["seller"]),
-  updateOrderStatus,
+  updateOrderStatus
 );
 
 export default orderRoutes;
