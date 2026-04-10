@@ -40,8 +40,8 @@ const addToCart = catchAsync(
     const userId = req.user._id;
 
     // 2. Business Logic: Find or create the user's cart
+    // const mongooseUserId = new mongoose.Types.ObjectId(userId);
     let cart = await Cart.findOne({ user: userId });
-
     if (!cart) {
       // Create new cart if one doesn't exist
       cart = await Cart.create({

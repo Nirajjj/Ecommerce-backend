@@ -1,9 +1,8 @@
-import { model, Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 
 interface Category {
   name: string;
   description: string;
-  products: Schema.Types.ObjectId[];
   image: {
     url: string;
     public_id: string;

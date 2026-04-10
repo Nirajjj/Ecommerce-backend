@@ -187,12 +187,25 @@ const getOrders = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) return next(new AppError(401, "Unauthorized"));
 
-    const orders = await Order.find({ user: req.user._id });
+    const page = parseInt(req.query.page! as string) || 1;
+    const limit = parseInt(req.query.limit! as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const [orders, totalOrders] = await Promise.all([
+      Order.find({ user: req.user._id }).skip(skip).limit(limit),
+      Order.countDocuments({ user: req.user._id }),
+    ]);
 
     res.status(200).json({
       status: "success",
       message: "Orders fetched successfully",
-      data: { orders },
+      data: {
+        orders,
+        totalOrders,
+        totalPages: Math.ceil(totalOrders / limit),
+        page,
+        limit,
+      },
     });
   }
 );

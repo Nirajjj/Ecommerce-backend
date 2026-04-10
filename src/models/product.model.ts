@@ -4,9 +4,9 @@ export interface ProductDocument {
   name: string;
   description: string;
   price: number;
-  category: mongoose.Schema.Types.ObjectId;
+  category: mongoose.Types.ObjectId;
   stock: number;
-  seller: Schema.Types.ObjectId;
+  seller: mongoose.Types.ObjectId;
   images: { url: string; public_id: string }[];
 }
 
@@ -55,7 +55,7 @@ const productSchema = new Schema<ProductDocument>(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 const Product = model<ProductDocument>("Product", productSchema);

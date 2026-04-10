@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -6,7 +6,7 @@ import { JWT_SECRET } from "../config/env.js";
 
 export interface UserDocument {
   // change the name of the interface to avoid confusion with the model change to IUser or
-  _id: Schema.Types.ObjectId;
+  _id: mongoose.Types.ObjectId;
   name: string;
   gender: "male" | "female" | "other";
   phoneNumber: string;
@@ -83,7 +83,7 @@ let userSchema = new Schema<UserDocument>(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 userSchema.methods.validatePassword = function (passwordByUser: string) {

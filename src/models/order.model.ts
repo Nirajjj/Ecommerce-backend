@@ -4,7 +4,7 @@ interface OrderItem {
   product: mongoose.Types.ObjectId;
   quantity: number;
   priceAtPurchase: number;
-  seller: mongoose.Schema.Types.ObjectId;
+  seller: mongoose.Types.ObjectId;
   productStatus:
     | "pending"
     | "processing"
@@ -48,7 +48,7 @@ const orderSchema = new Schema<Order>(
           required: true,
           min: 0,
         },
-        seller: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        seller: { type: Schema.Types.ObjectId, ref: "User" },
         productStatus: {
           type: String,
           required: true,
@@ -95,7 +95,7 @@ const orderSchema = new Schema<Order>(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 const Order = model<Order>("Order", orderSchema);

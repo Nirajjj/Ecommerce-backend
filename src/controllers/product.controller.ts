@@ -9,15 +9,24 @@ import mongoose from "mongoose";
 
 // --- CUSTOMER CONTROLLERS ---
 const getProducts = catchAsync(async (req: Request, res: Response) => {
-  const products = await Product.find().populate(
-    "category",
-    "name description"
-  );
-
+  const page = parseInt(req.query.page! as string) || 1;
+  const limit = parseInt(req.query.limit! as string) || 10;
+  const skip = (page - 1) * limit;
+  const products = await Product.find()
+    .populate("category", "name description")
+    .skip(skip)
+    .limit(limit);
+  const totalProducts = await Product.countDocuments();
   res.status(200).json({
     status: "success",
     message: "Products fetched successfully",
-    data: { products },
+    data: {
+      products,
+      totalProducts,
+      totalPages: Math.ceil(totalProducts / limit),
+      page,
+      limit,
+    },
   });
 });
 
@@ -43,17 +52,39 @@ const searchProducts = catchAsync(
     const query = req.query.q as string;
     if (!query) return next(new AppError(400, "Query parameter is required"));
 
-    const products = await Product.find({
-      $or: [
-        { name: { $regex: query, $options: "i" } },
-        { description: { $regex: query, $options: "i" } },
-      ],
-    });
+    const page = parseInt(req.query.page! as string) || 1;
+    const limit = parseInt(req.query.limit! as string) || 10;
+    const skip = (page - 1) * limit;
+    const result = await Product.aggregate([
+      {
+        $match: {
+          $or: [
+            { name: { $regex: query, $options: "i" } },
+            { description: { $regex: query, $options: "i" } },
+          ],
+        },
+      },
+      {
+        $facet: {
+          products: [{ $skip: skip }, { $limit: limit }],
+          totalCount: [{ $count: "count" }],
+        },
+      },
+    ]);
+
+    const products = result[0].products;
+    const totalProducts = result[0].totalCount[0]?.count || 0;
 
     res.status(200).json({
       status: "success",
       message: "Products fetched successfully",
-      data: { products },
+      data: {
+        products,
+        totalProducts,
+        totalPages: Math.ceil(totalProducts / limit),
+        page,
+        limit,
+      },
     });
   }
 );
@@ -61,12 +92,23 @@ const getProductsByCategory = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const categoryID = req.params.category as string;
 
+    const page = parseInt(req.query.page! as string) || 1;
+    const limit = parseInt(req.query.limit! as string) || 10;
+    const skip = (page - 1) * limit;
     if (!mongoose.isValidObjectId(categoryID))
       return next(new AppError(400, "Invalid category ID"));
 
-    const products = await Product.find({
-      category: categoryID,
-    } as any).populate("category", "name description");
+    const categoryObjectId = new mongoose.Types.ObjectId(categoryID);
+    const [products, totalProducts] = await Promise.all([
+      await Product.find({
+        category: categoryID,
+      } as any)
+        .skip(skip)
+        .limit(limit),
+      await Product.countDocuments({
+        category: categoryObjectId,
+      }),
+    ]);
 
     if (products.length === 0)
       return next(new AppError(404, "No products found for this category"));
@@ -74,7 +116,13 @@ const getProductsByCategory = catchAsync(
     res.status(200).json({
       status: "success",
       message: "Category fetched successfully",
-      data: { products },
+      data: {
+        products,
+        totalProducts,
+        totalPages: Math.ceil(totalProducts / limit),
+        page,
+        limit,
+      },
     });
   }
 );
@@ -258,12 +306,25 @@ const getSellerProducts = catchAsync(
 
     if (!userId) return next(new AppError(401, "Unauthorized"));
 
-    const products = await Product.find({ seller: userId });
+    const page = parseInt(req.query.page! as string) || 1;
+    const limit = parseInt(req.query.limit! as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const [products, totalProducts] = await Promise.all([
+      await Product.find({ seller: userId }).skip(skip).limit(limit),
+      await Product.countDocuments({ seller: userId }),
+    ]);
 
     res.status(200).json({
       status: "success",
       message: "Products fetched successfully",
-      data: { products },
+      data: {
+        products,
+        totalProducts,
+        totalPages: Math.ceil(totalProducts / limit),
+        page,
+        limit,
+      },
     });
   }
 );

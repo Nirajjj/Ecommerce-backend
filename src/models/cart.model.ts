@@ -7,14 +7,14 @@ interface CartItem {
   quantity: number;
 }
 interface Cart {
-  user: mongoose.Schema.Types.ObjectId;
+  user: mongoose.Types.ObjectId;
   items: CartItem[];
   totalPrice: number;
 }
 
 const cartItemSchema = new Schema<CartItem>({
   product: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Product",
     required: true,
   },
