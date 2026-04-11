@@ -15,36 +15,16 @@ import upload from "../middleware/multer.middleware.js";
 
 const productRoutes = Express.Router();
 
-productRoutes.get(
-  "/",
-  authenticate,
-  authorize(["seller", "customer"]),
-  getProducts,
-);
-productRoutes.get(
-  "/category/:category",
-  authenticate,
-  authorize(["seller", "customer"]),
-  getProductsByCategory,
-);
-productRoutes.get(
-  "/search",
-  authenticate,
-  authorize(["seller", "customer"]),
-  searchProducts,
-);
-productRoutes.get(
-  "/:id",
-  authenticate,
-  authorize(["seller", "customer"]),
-  getProductById,
-);
+productRoutes.get("/", getProducts);
+productRoutes.get("/category/:category", getProductsByCategory);
+productRoutes.get("/search", searchProducts);
+productRoutes.get("/:id", getProductById);
 productRoutes.put(
   "/:id",
   authenticate,
   authorize(["seller"]),
   upload.array("images", 5), // allow up to 5 images
-  updateProduct,
+  updateProduct
 );
 
 productRoutes.post(
@@ -52,28 +32,28 @@ productRoutes.post(
   authenticate,
   authorize(["seller"]),
   upload.array("images", 5), // allow up to 5 images
-  createProduct,
+  createProduct
 );
 
 productRoutes.delete(
   "/:id",
   authenticate,
   authorize(["seller"]),
-  deleteProduct,
+  deleteProduct
 );
 
 productRoutes.get(
   "/seller/my-products",
   authenticate,
   authorize(["seller"]),
-  getSellerProducts,
+  getSellerProducts
 );
 
 productRoutes.patch(
   "/stock/:id",
   authenticate,
   authorize(["seller"]),
-  updateStock,
+  updateStock
 );
 
 export default productRoutes;

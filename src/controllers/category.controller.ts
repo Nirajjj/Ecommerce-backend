@@ -45,24 +45,27 @@ const createCategory = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { name, description } = req.body;
 
-    if (!req.file) return next(new AppError(400, "Image is required"));
+    if (req.file) {
+      const file = req.file as Express.Multer.File; // array of images uploaded
+      const uploadImage = (await uploadToCloudinary(file)) as UploadApiResponse;
+      const image = {
+        url: uploadImage.secure_url,
+        public_id: uploadImage.public_id,
+      };
+      try {
+        const category = await Category.create({ name, description, image });
 
-    const file = req.file as Express.Multer.File; // array of images uploaded
-    const uploadImage = (await uploadToCloudinary(file)) as UploadApiResponse;
-    const image = {
-      url: uploadImage.secure_url,
-      public_id: uploadImage.public_id,
-    };
+        res.status(201).json({ category });
+      } catch (error) {
+        await cloudinary.uploader.destroy(uploadImage.public_id);
 
-    try {
-      const category = await Category.create({ name, description, image });
-
-      res.status(201).json({ category });
-    } catch (error) {
-      await cloudinary.uploader.destroy(uploadImage.public_id);
-
-      return next(new AppError(500, "Failed to create category"));
+        return next(new AppError(500, "Failed to create category"));
+      }
     }
+
+    const category = await Category.create({ name, description });
+
+    res.status(201).json({ category });
   }
 );
 

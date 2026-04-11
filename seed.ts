@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Product } from "./src/models/product.model.js";
-import { fashionProducts } from "./fashionProducts"; // The 30 objects I gave you
+import { products } from "./products.js"; // The 30 objects I gave you
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -17,8 +17,9 @@ const seedDatabase = async () => {
     // console.log("🗑️  Old products cleared.");
 
     // 3. Insert the new data
-    await Product.insertMany(fashionProducts);
-    console.log("✅ 30 Fashion Products successfully added!");
+    await Product.insertMany(products);
+    console.log(products.length);
+    console.log("✅  Products successfully added!");
 
     // 4. Close connection
     mongoose.connection.close();

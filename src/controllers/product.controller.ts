@@ -6,6 +6,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { catchAsync } from "../utils/catchAsync.js";
 import { AppError } from "../utils/appError.js";
 import mongoose from "mongoose";
+import { Category } from "../models/category.model.js";
 
 // --- CUSTOMER CONTROLLERS ---
 const getProducts = catchAsync(async (req: Request, res: Response) => {
@@ -99,7 +100,7 @@ const getProductsByCategory = catchAsync(
       return next(new AppError(400, "Invalid category ID"));
 
     const categoryObjectId = new mongoose.Types.ObjectId(categoryID);
-    const [products, totalProducts] = await Promise.all([
+    const [products, totalProducts, categoryDetails] = await Promise.all([
       await Product.find({
         category: categoryID,
       } as any)
@@ -107,6 +108,11 @@ const getProductsByCategory = catchAsync(
         .limit(limit),
       await Product.countDocuments({
         category: categoryObjectId,
+      }),
+      await Category.findById(categoryObjectId).then((category) => {
+        if (!category) return null;
+
+        return { id: category._id, name: category.name };
       }),
     ]);
 
@@ -117,6 +123,7 @@ const getProductsByCategory = catchAsync(
       status: "success",
       message: "Category fetched successfully",
       data: {
+        categoryDetails,
         products,
         totalProducts,
         totalPages: Math.ceil(totalProducts / limit),
