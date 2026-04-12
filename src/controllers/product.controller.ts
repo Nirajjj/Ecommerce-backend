@@ -43,7 +43,7 @@ const getProductById = catchAsync(
     res.status(200).json({
       status: "success",
       message: "Product fetched successfully",
-      data: { product },
+      data: product,
     });
   }
 );
@@ -72,7 +72,7 @@ const searchProducts = catchAsync(
         },
       },
     ]);
-
+    console.log(result);
     const products = result[0].products;
     const totalProducts = result[0].totalCount[0]?.count || 0;
 

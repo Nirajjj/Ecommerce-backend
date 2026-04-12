@@ -5,6 +5,7 @@ export interface ProductDocument {
   description: string;
   price: number;
   category: mongoose.Types.ObjectId;
+  mrp: number;
   stock: number;
   seller: mongoose.Types.ObjectId;
   images: { url: string; public_id: string }[];
@@ -38,6 +39,17 @@ const productSchema = new Schema<ProductDocument>(
     seller: {
       type: Schema.Types.ObjectId,
       ref: "User",
+    },
+    mrp: {
+      type: Number,
+      validate: {
+        validator: function (mrp: number) {
+          const product = this as ProductDocument;
+
+          return mrp >= product.price;
+        },
+        message: "MRP must be greater than or equal to price",
+      },
     },
     images: {
       type: [
