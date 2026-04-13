@@ -12,6 +12,7 @@ import categoryRoutes from "./routes/category.routes.js";
 import cartRoutes from "./routes/cart.routes.js";
 import orderRoutes from "./routes/order.routes.js";
 import { HOST_URL, PORT } from "./config/env.js";
+import userRoutes from "./routes/user.routes.js";
 
 const app = express();
 let port = PORT || 3000;
@@ -30,10 +31,11 @@ app.use((req, res, next) => {
 });
 // ROUTES
 app.use("/api/auth", authRoutes);
-app.use("/api/product", productRoutes);
-app.use("/api/category", categoryRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/categories", categoryRoutes);
 app.use("/api/cart", cartRoutes);
-app.use("/api/order", orderRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/users", userRoutes);
 
 app.use(globalErrorHandler);
 
@@ -44,7 +46,7 @@ connectToDb()
   })
   .catch((error) => {
     console.error(
-      `CRITICAL: Database connection failed. \nError: ${error.message}`,
+      `CRITICAL: Database connection failed. \nError: ${error.message}`
     );
     process.exit(1);
   });

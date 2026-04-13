@@ -14,6 +14,7 @@ export interface UserDocument {
   password: string;
   roles: string[];
   accountStatus: string;
+  avatar: { url: string; public_id: string };
   validatePassword: (passwordByUser: string) => Promise<boolean>;
   createJwtToken: () => Promise<string>;
 }
@@ -73,6 +74,12 @@ let userSchema = new Schema<UserDocument>(
             "An Admin cannot hold customer or seller roles simultaneously.",
         },
       ],
+    },
+    avatar: {
+      type: {
+        url: String,
+        public_id: String,
+      },
     },
     accountStatus: {
       type: String,

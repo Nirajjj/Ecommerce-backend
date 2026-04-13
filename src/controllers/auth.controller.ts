@@ -47,7 +47,7 @@ const register = catchAsync(
     res.status(201).json({
       status: "success",
       message: "User registered successfully",
-      data: { user: newUser },
+      data: newUser,
     });
   }
 );
@@ -105,7 +105,7 @@ const login = catchAsync(
     res.status(200).json({
       status: "success",
       message: "User logged in successfully",
-      data: { user },
+      data: user,
     });
   }
 );
@@ -118,7 +118,7 @@ const getMe = catchAsync(
     res.status(200).json({
       status: "success",
       message: "User fetched successfully",
-      data: { user: req.user },
+      data: req.user,
     });
   }
 );

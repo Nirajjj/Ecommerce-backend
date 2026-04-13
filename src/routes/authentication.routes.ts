@@ -6,7 +6,8 @@ import {
   upgradeToSeller,
   register,
 } from "../controllers/auth.controller.js";
-import { authenticate } from "../middleware/auth.middleware.js";
+import { authenticate, authorize } from "../middleware/auth.middleware.js";
+import upload from "../middleware/multer.middleware.js";
 
 const authRouter = Express.Router();
 
