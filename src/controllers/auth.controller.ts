@@ -39,9 +39,10 @@ const register = catchAsync(
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      secure: true,
+      sameSite: "none",
+      maxAge: 24 * 60 * 60 * 1000,
+      path: "/",
     });
 
     res.status(201).json({
@@ -100,7 +101,10 @@ const login = catchAsync(
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: NODE_ENV === "production",
+      secure: true,
+      sameSite: "none",
+      maxAge: 24 * 60 * 60 * 1000,
+      path: "/",
     });
     res.status(200).json({
       status: "success",

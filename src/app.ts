@@ -19,7 +19,12 @@ let port = PORT || 3000;
 
 //MIDDLEWARE
 app.use(cookieParser());
-app.use(cors({ origin: HOST_URL || "*", credentials: true })); // how to set credentials to true in cors for development and production environments? In development, you can set credentials to true in CORS to allow cookies to be sent with requests from your frontend (e.g., http://localhost:3000). In production, you should specify the exact origin of your frontend (e.g., https://yourfrontend.com) and set credentials to true to allow cookies to be sent. Here's how you can do it:
+app.use(
+  cors({
+    origin: HOST_URL,
+    credentials: true,
+  })
+); // how to set credentials to true in cors for development and production environments? In development, you can set credentials to true in CORS to allow cookies to be sent with requests from your frontend (e.g., http://localhost:3000). In production, you should specify the exact origin of your frontend (e.g., https://yourfrontend.com) and set credentials to true to allow cookies to be sent. Here's how you can do it:
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -40,13 +45,15 @@ app.use("/api/users", userRoutes);
 app.use(globalErrorHandler);
 
 // DB CONNECTION
-connectToDb()
-  .then(() => {
-    app.listen(port, () => console.log(`server started to run on ${port} `));
-  })
-  .catch((error) => {
-    console.error(
-      `CRITICAL: Database connection failed. \nError: ${error.message}`
-    );
-    process.exit(1);
-  });
+// connectToDb()
+//   .then(() => {
+//     app.listen(port, () => console.log(`server started to run on ${port} `));
+//   })
+//   .catch((error) => {
+//     console.error(
+//       `CRITICAL: Database connection failed. \nError: ${error.message}`
+//     );
+//     process.exit(1);
+//   });
+
+export default app;
