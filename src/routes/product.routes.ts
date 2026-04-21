@@ -18,7 +18,7 @@ const productRoutes = Express.Router();
 productRoutes.get("/", getProducts);
 productRoutes.get("/category/:category", getProductsByCategory);
 productRoutes.get("/search", searchProducts);
-productRoutes.get("/:id", getProductById);
+
 productRoutes.put(
   "/:id",
   authenticate,
@@ -43,7 +43,7 @@ productRoutes.delete(
 );
 
 productRoutes.get(
-  "/seller/my-products",
+  "/seller",
   authenticate,
   authorize(["seller"]),
   getSellerProducts
@@ -55,5 +55,5 @@ productRoutes.patch(
   authorize(["seller"]),
   updateStock
 );
-
+productRoutes.get("/:id", getProductById);
 export default productRoutes;

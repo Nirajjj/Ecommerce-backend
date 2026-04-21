@@ -142,7 +142,7 @@ const updateProduct = catchAsync(
 
     let keptImages =
       (req.body.images as { url: string; public_id: string }[]) || []; // array of public_ids of images to keep
-
+    console.log("keptImages", keptImages);
     if (!req.user) return next(new AppError(401, "Unauthorized"));
 
     if (req.user._id.toString() !== product?.seller.toString()) {
@@ -167,7 +167,7 @@ const updateProduct = catchAsync(
 
     // handle new image upload if there is a new image
     const reqFiles = req.files as Express.Multer.File[]; // array of new images uploaded
-
+    console.log("reqFiles", reqFiles);
     const newImages: UploadApiResponse[] = [];
 
     if (reqFiles && reqFiles.length > 0) {
@@ -186,10 +186,12 @@ const updateProduct = catchAsync(
 
     const allImages = [...keptImages, ...newImages];
 
-    const { name, description, price, category, stock } = req.body;
+    const { name, description, price, category, stock, mrp } = req.body;
+    console.log("req.body", req.body);
+
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      { name, description, price, category, stock, images: allImages },
+      { name, description, price, category, mrp, stock, images: allImages },
       { new: true } // this new option returns the updated document instead of the original
     );
 
@@ -310,7 +312,7 @@ const deleteProduct = catchAsync(
 const getSellerProducts = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user?._id;
-
+    console.log(userId);
     if (!userId) return next(new AppError(401, "Unauthorized"));
 
     const page = parseInt(req.query.page! as string) || 1;
@@ -321,7 +323,7 @@ const getSellerProducts = catchAsync(
       await Product.find({ seller: userId }).skip(skip).limit(limit),
       await Product.countDocuments({ seller: userId }),
     ]);
-
+    console.log(products);
     res.status(200).json({
       status: "success",
       message: "Products fetched successfully",

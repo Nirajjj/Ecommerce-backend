@@ -7,7 +7,7 @@ import type { JwtPayload } from "jsonwebtoken";
 const authenticate = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const { token } = req.cookies;
   if (!token) {
@@ -18,6 +18,7 @@ const authenticate = async (
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
 
     const user = await User.findById(decoded.id);
+    console.log(user);
     if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -40,12 +41,13 @@ const authorize = (roles: string[] | string) => {
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-
-    req.user.roles.forEach((role) => {
-      if (!roles.includes(role)) {
-        return res.status(403).json({ message: "Forbidden" });
-      }
-    });
+    console.log(req.user.roles, roles);
+    // req.user.roles.forEach((role) => {
+    if (!req.user.roles.includes(roles[0] || "")) {
+      console.log("forbidden");
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    // });
 
     next();
   };

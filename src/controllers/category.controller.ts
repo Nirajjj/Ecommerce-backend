@@ -14,7 +14,7 @@ const getCategories = catchAsync(
     res.status(200).json({
       status: "success",
       message: "Categories fetched successfully",
-      data: { categories },
+      data: categories,
     });
   }
 );
@@ -36,7 +36,7 @@ const getCategoryById = catchAsync(
     res.status(200).json({
       status: "success",
       message: "Category fetched successfully",
-      data: { category },
+      data: category,
     });
   }
 );
