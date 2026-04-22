@@ -35,7 +35,7 @@ const createOrder = catchAsync(
       if (product.stock < quantity) {
         return next(new AppError(400, "Insufficient stock available"));
       }
-
+      totalPrice = product.price * quantity;
       orderItems = [
         {
           product: product._id,
@@ -96,6 +96,7 @@ const createOrder = catchAsync(
       });
 
       order.razorpayOrderId = razorpayOrder.id;
+      console.log(razorpayOrder);
       await order.save();
       res.status(201).json({
         status: "success",
@@ -142,7 +143,9 @@ const verifyPayment = catchAsync(
     if (!order) {
       return next(new AppError(404, "Order not found"));
     }
-
+    if (order.razorpayOrderId !== razorpay_order_id) {
+      return next(new AppError(400, "Order mismatch"));
+    }
     if (order.paymentStatus === "paid") {
       return res.status(200).send("Already processed");
     }
@@ -152,7 +155,7 @@ const verifyPayment = catchAsync(
       .createHmac("sha256", RAZORPAY_SECRET)
       .update(body)
       .digest("hex");
-
+    console.log(expectedSignature);
     if (expectedSignature !== razorpay_signature) {
       return next(new AppError(400, "Payment verification failed"));
     }

@@ -12,6 +12,8 @@ export const HOST_URL = process.env.HOST_URL!;
 export const PORT = process.env.PORT!;
 export const MONGODB_URI = process.env.MONGO_URI!;
 export const NODE_ENV = process.env.NODE_ENV!;
+export const EMAIL_USER = process.env.EMAIL_USER!;
+export const EMAIL_PASS = process.env.EMAIL_PASS!;
 
 if (
   !JWT_SECRET ||
@@ -24,7 +26,9 @@ if (
   !HOST_URL ||
   !PORT ||
   !MONGODB_URI ||
-  !NODE_ENV
+  !NODE_ENV ||
+  !EMAIL_USER ||
+  !EMAIL_PASS
 ) {
   const missingVars: string[] = [];
   if (!JWT_SECRET) missingVars.push("JWT_SECRET_KEY");
@@ -49,7 +53,10 @@ if (
 
   if (!NODE_ENV) missingVars.push("NODE_ENV");
 
+  if (!EMAIL_USER) missingVars.push("EMAIL_USER");
+
+  if (!EMAIL_PASS) missingVars.push("EMAIL_PASS");
   throw new Error(
-    `The following required environment variables are missing: ${missingVars.join(", ")}`,
+    `The following required environment variables are missing: ${missingVars.join(", ")}`
   );
 }

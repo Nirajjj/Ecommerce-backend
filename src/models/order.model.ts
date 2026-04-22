@@ -86,11 +86,9 @@ const orderSchema = new Schema<Order>(
     },
     razorpayOrderId: {
       type: String,
-      required: true,
     },
     razorpayPaymentId: {
       type: String,
-      required: true,
     },
   },
   {

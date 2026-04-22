@@ -11,8 +11,8 @@ import {
 
 const orderRoutes = express.Router();
 
-orderRoutes.post("/", authenticate, createOrder);
-orderRoutes.post("/verify", authenticate, verifyPayment);
+orderRoutes.post("/create-order", authenticate, createOrder);
+orderRoutes.post("/verify-payment", authenticate, verifyPayment);
 orderRoutes.get("/", authenticate, getOrders);
 orderRoutes.get("/:id", authenticate, getOrder);
 

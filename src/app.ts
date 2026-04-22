@@ -13,6 +13,7 @@ import cartRoutes from "./routes/cart.routes.js";
 import orderRoutes from "./routes/order.routes.js";
 import { HOST_URL, PORT } from "./config/env.js";
 import userRoutes from "./routes/user.routes.js";
+import contactRoutes from "./routes/contact.routes.js";
 
 const app = express();
 let port = PORT || 3000;
@@ -21,8 +22,8 @@ let port = PORT || 3000;
 app.use(cookieParser());
 app.use(
   cors({
-    origin: HOST_URL,
-    // origin: "http://localhost:5173",
+    // origin: HOST_URL,
+    origin: "http://localhost:5173",
     credentials: true,
   })
 ); // how to set credentials to true in cors for development and production environments? In development, you can set credentials to true in CORS to allow cookies to be sent with requests from your frontend (e.g., http://localhost:3000). In production, you should specify the exact origin of your frontend (e.g., https://yourfrontend.com) and set credentials to true to allow cookies to be sent. Here's how you can do it:
@@ -42,6 +43,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api", contactRoutes);
 
 app.use(globalErrorHandler);
 
